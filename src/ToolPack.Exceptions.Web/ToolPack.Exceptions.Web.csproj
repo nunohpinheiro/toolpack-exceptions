@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+
+    <IsPackable>true</IsPackable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <PackageId>ToolPack.Exceptions.Web</PackageId>
+
+    <Version>1.0.0</Version>
+
+    <PackageProjectUrl></PackageProjectUrl>
+    <ProjectUrl></ProjectUrl>
+    <RepositoryUrl></RepositoryUrl>
+
+    <Authors>nunohpinheiro</Authors>
+
+    <PackageTags>Exceptions;ExceptionGuard;ExceptionHandlers;gRPC;Interceptor;Middleware;REST;Web</PackageTags>
+
+    <Description>
+        NuGet package to handle exceptions in web projects.
+        It includes exception handlers for REST and gRPC services, as well as exception entities provided by ToolPack.Exceptions.Base.
+        Repo:
+    </Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="10.2.3" />
+    <PackageReference Include="Grpc.AspNetCore.Server" Version="2.38.0" />
+    <PackageReference Include="Grpc.Core.Api" Version="2.38.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+    <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ToolPack.Exceptions.Base\ToolPack.Exceptions.Base.csproj" />
+  </ItemGroup>
+
+</Project>
