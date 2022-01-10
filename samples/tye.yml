@@ -1,0 +1,30 @@
+# tye application configuration file
+# read all about it at https://github.com/dotnet/tye
+#
+# when you've given us a try, we'd love to know what you think:
+#    https://aka.ms/AA7q20u
+#
+name: apis-exceptions-sample
+
+services:
+
+- name: grpcapi-exceptions-hello
+  project: GrpcAPI/GrpcAPI.csproj
+  bindings:
+  - port: 5001
+    protocol: https
+  replicas: 1
+  env:
+  - name: ASPNETCORE_ENVIRONMENT
+    value: Development
+
+- name: restapi-exceptions-hello
+  project: RestAPI/RestAPI.csproj
+  bindings:
+  - port: 5000
+    protocol: https
+  replicas: 1
+  env:
+  - name: ASPNETCORE_ENVIRONMENT
+    value: Development
+

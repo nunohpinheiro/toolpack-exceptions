@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option csharp_namespace = "GrpcAPI";
+
+package greet;
+
+service Greeter {
+  rpc GetAlreadyExists (Request) returns (Response);
+  rpc GetAlreadyExistsStream (Request) returns (stream Response);
+  rpc GetCustomBaseException (Request) returns (Response);
+  rpc GetCustomBaseExceptionStream (Request) returns (stream Response);
+  rpc GetNotFound (Request) returns (Response);
+  rpc GetNotFoundStream (Request) returns (stream Response);
+  rpc GetThirdPartyException (Request) returns (Response);
+  rpc GetThirdPartyExceptionStream (Request) returns (stream Response);
+  rpc GetValidationFailedException (Request) returns (Response);
+  rpc GetValidationFailedExceptionStream (Request) returns (stream Response);
+}
+
+message Request { }
+message Response { }
