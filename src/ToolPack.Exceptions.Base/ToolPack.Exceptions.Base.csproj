@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+
+    <IsPackable>true</IsPackable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <PackageId>ToolPack.Exceptions.Base</PackageId>
+
+    <Version>1.0.0</Version>
+
+    <PackageProjectUrl></PackageProjectUrl>
+    <ProjectUrl></ProjectUrl>
+    <RepositoryUrl></RepositoryUrl>
+
+    <Authors>nunohpinheiro</Authors>
+
+    <PackageTags>Exceptions;ExceptionGuard</PackageTags>
+
+    <Description>
+      NuGet package with custom hierarchy-related exceptions, as well as an exception guard against matching conditions.
+      Repo: 
+    </Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="10.2.3" />
+    <PackageReference Include="Grpc.AspNetCore.Server" Version="2.38.0" />
+    <PackageReference Include="Grpc.Core.Api" Version="2.38.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+    <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
+  </ItemGroup>
+
+</Project>
