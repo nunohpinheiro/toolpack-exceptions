@@ -25,6 +25,13 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <None Include="..\..\README.md">
+        <Pack>True</Pack>
+        <PackagePath>\</PackagePath>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="FluentValidation" Version="10.2.3" />
         <PackageReference Include="Grpc.AspNetCore.Server" Version="2.38.0" />
         <PackageReference Include="Grpc.Core.Api" Version="2.38.1" />
