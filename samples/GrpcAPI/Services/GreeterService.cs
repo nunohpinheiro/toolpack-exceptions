@@ -61,7 +61,7 @@ namespace GrpcAPI
 
             _logger.LogInformation("Throwing NotFoundException");
 
-            ThrowWhen.ArgumentNullThrowNotFound<string>(null, "argument description");
+            ThrowWhen.ArgumentNullThrowNotFound<string>(null, "argument description", "argument key");
 
             return Task.FromResult(new Response());
         }
@@ -72,7 +72,7 @@ namespace GrpcAPI
 
             _logger.LogInformation("Throwing NotFoundException");
 
-            ThrowWhen.ArgumentNullThrowNotFound<string>(null, "argument description");
+            ThrowWhen.ArgumentNullThrowNotFound<string>(null, "argument description", "argument key");
             return Task.CompletedTask;
         }
 

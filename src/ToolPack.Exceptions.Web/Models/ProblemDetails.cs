@@ -21,13 +21,13 @@ namespace ToolPack.Exceptions.Web.Models
         /// <param name="exception">Exception from which the ProblemDetails properties are filled.</param>
         public ProblemDetails(Exception exception)
         {
-            var exceptionErrorStatus = WebErrorStatus.GetFromException(exception);
+            var exceptionErrorStatus = WebErrorStatuses.GetFromException(exception);
 
             Detail = exception?.Message;
-            Instance = exceptionErrorStatus.TypeDescription;
+            Instance = exceptionErrorStatus.Description;
             Status = (int)exceptionErrorStatus.HttpCode;
             Title = exceptionErrorStatus.HttpCode.ToString();
-            Type = exceptionErrorStatus.TypeDescription;
+            Type = exceptionErrorStatus.Description;
 
             SetErrors(exception);
         }
@@ -45,13 +45,13 @@ namespace ToolPack.Exceptions.Web.Models
         /// <param name="traceId">Tracing identifier related with the context of these ProblemDetails.</param>
         public ProblemDetails(string traceId)
         {
-            var problemDetailsStatus = WebErrorStatus.InternalUnknownError;
+            var problemDetailsStatus = WebErrorStatuses.InternalUnknownError;
 
             Detail = problemDetailsStatus.HttpCode.ToString();
             Status = (int)problemDetailsStatus.HttpCode;
             Title = problemDetailsStatus.HttpCode.ToString();
             TraceId = traceId;
-            Type = problemDetailsStatus.TypeDescription;
+            Type = problemDetailsStatus.Description;
         }
 
         private void SetErrors(Exception exception)

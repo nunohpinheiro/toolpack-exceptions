@@ -26,7 +26,7 @@ namespace ToolPack.Exceptions.Web.Services.Implementations
             if (exception is null)
             {
                 _logger.LogWarning("A null exception was used to build a response with ProblemDetails. A default will be returned.");
-                return (WebErrorStatus.InternalUnknownError.HttpCode.ToString(), WebErrorStatus.InternalUnknownError);
+                return (WebErrorStatuses.InternalUnknownError.HttpCode.ToString(), WebErrorStatuses.InternalUnknownError);
             }
 
             return GetProblemDetailsWebErrorResponse(exception);
@@ -48,7 +48,7 @@ namespace ToolPack.Exceptions.Web.Services.Implementations
         {
             TrySerializeProblemDetails(new(traceId), out var problemDetailsDefaultResponseJson);
 
-            return (problemDetailsDefaultResponseJson, WebErrorStatus.InternalUnknownError);
+            return (problemDetailsDefaultResponseJson, WebErrorStatuses.InternalUnknownError);
         }
 
         private bool TrySerializeProblemDetails(

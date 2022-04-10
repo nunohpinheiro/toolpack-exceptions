@@ -13,7 +13,7 @@ namespace ToolPack.Exceptions.Web.Models
         internal ProblemDetailsWebResponse(Exception exception, string traceId)
         {
             ProblemDetails = new(exception, traceId);
-            WebErrorStatus = WebErrorStatus.GetFromException(exception);
+            WebErrorStatus = WebErrorStatuses.GetFromException(exception);
         }
     }
 }

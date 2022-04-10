@@ -20,7 +20,7 @@ namespace ToolPack.Exceptions.UnitTests.Web.Services
         public void BuildProblemDetailsResponse_ExceptionIsNull_ReturnsDefault()
         {
             // Arrange
-            var expectedErrorStatus = WebErrorStatus.InternalUnknownError;
+            var expectedErrorStatus = WebErrorStatuses.InternalUnknownError;
             var expectedResult = expectedErrorStatus.HttpCode.ToString();
             ProblemDetailsService problemDetailsService = new(GetHttpContextAccessorMock().Object, LoggerMock.Object);
 

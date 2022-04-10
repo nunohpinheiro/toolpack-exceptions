@@ -117,11 +117,12 @@ namespace ToolPack.Exceptions.UnitTests.Base.Guard
             // Arrange
             int? argument = null;
             string argumentDescription = nameof(argument);
+            string argumentKey = "argument key";
 
-            NotFoundException expectedException = new(argumentDescription, argument);
+            NotFoundException expectedException = new(argumentDescription, argumentKey);
 
             // Act
-            Action act = () => ThrowWhen.ArgumentNullThrowNotFound(argument, argumentDescription);
+            Action act = () => ThrowWhen.ArgumentNullThrowNotFound(argument, argumentDescription, argumentKey);
 
             // Assert
             act.Should().Throw<NotFoundException>()
@@ -136,7 +137,7 @@ namespace ToolPack.Exceptions.UnitTests.Base.Guard
             string argumentDescription = nameof(argument);
 
             // Act
-            Action act = () => ThrowWhen.ArgumentNullThrowNotFound(argument, argumentDescription);
+            Action act = () => ThrowWhen.ArgumentNullThrowNotFound(argument, argumentDescription, "argument key");
 
             // Assert
             act.Should().NotThrow();

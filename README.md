@@ -83,9 +83,15 @@ Other contents:
 ### Models list:
 
 * `ProblemDetails`
-	* Custom model that implements the [`ProblemDetails` RFC for HTTP APIs' error responses](https://datatracker.ietf.org/doc/html/rfc7807)
-	* It extends the model `Microsoft.AspNetCore.Mvc.ProblemDetails`
+	* Custom model that implements the [`ProblemDetails` RFC for HTTP APIs' error responses](https://datatracker.ietf.org/doc/html/rfc7807);
+	* It extends the model `Microsoft.AspNetCore.Mvc.ProblemDetails`.
 
+* `WebErrorStatus`
+	* Placeholder to relate an HTTP status code (according to `System.Net.Primitives`), a similar gRPC status code (according to `Grpc.Core.Api`) and a description common to both.
+
+* `WebErrorStatuses`
+	* Opiniated `WebErrorStatus` objects that relate error types according to their meaning in the Web;
+	* It also relates these Error Statuses with known types of Exceptions - both custom and generic (check [Exceptions and matching Status Codes](#exceptions-and-matching-status-codes) below).
 
 ## **How to use**
 
@@ -94,21 +100,23 @@ Other contents:
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
-	// If developing a non-gRPC Web API
-    services.AddToolPackExceptions();
-    
-	// If developing a gRPC API, use one of the following to register a Global Exception Interceptor:
+	// If developing a REST Web API
+	services.AddToolPackExceptions();
+	
+	// If developing a gRPC API, use one of the following:
 	
 	// 1. You may replace the call to "AddToolPackExceptions()" by:
-	// services.AddToolPackExceptionsGrpc();
+	services.AddToolPackExceptionsGrpc();
 
-	// 2. Alternatively, you may call "AddToolPackExceptions()" and add:
-	// services.AddToolPackExceptionsGrpcInterceptor()
+	// 2. Alternatively, you may call "AddToolPackExceptions()" and add a global interceptor:
+	services
+		.AddToolPackExceptions()
+		.AddToolPackExceptionsGrpcInterceptor()
 }
 
 public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 {
-    // If developing a non-gRPC Web API, use this to register a Global Exception Middleware
+	// If developing a non-gRPC Web API, use this to register a Global Exception Middleware
 	app.UseToolPackExceptionsMiddleware();
 }
 ```
@@ -120,18 +128,20 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 
 ## **Exceptions and matching Status Codes**
 
+* (Check the class `WebErrorStatuses` for more details)
+
 | Exception        | Exception Package | RPC Status Code  | HTTP Status Code |
 | ---------------- | ----------------- | ---------------- | ---------------- |
-| `AlreadyExistsException` | `ToolPack Exceptions` | 6 AlreadyExists | 409 Conflict |
+| `AlreadyExistsException` | `ToolPack.Exceptions.Base` | 6 AlreadyExists | 409 Conflict |
 | `ArgumentException` | `System` | 3 InvalidArgument | 400 BadRequest |
-| `ArgumentOutOfRangeException` | `System` | 11 OutOfRange | 400 BadRequest |
 | `AuthenticationException` | `System.Security.Authentication` | 16 Unauthenticated | 401 Unauthorized |
-| `CustomBaseException` | `ToolPack Exceptions` | 13 Internal | 500 InternalServerError |
+| `CustomBaseException` (none of the others customized) | `ToolPack.Exceptions.Base` | 13 Internal | 500 InternalServerError |
+| `Exception` (none of the others) | `System` | 2 Unknown | 500 InternalServerError |
+| `ExternalComponentException` | `ToolPack.Exceptions.Base` | 13 Internal | 424 FailedDependency |
 | `HttpRequestException` | `System.Net.Http` | 14 Unavailable | 503 ServiceUnavailable |
-| `NotFoundException` | `ToolPack Exceptions` | 5 NotFound | 404 NotFound |
+| `NotFoundException` | `ToolPack.Exceptions.Base` | 5 NotFound | 404 NotFound |
 | `NotImplementedException` | `System` | 12 Unimplemented | 501 NotImplemented |
 | `TaskCanceledException` | `System.Threading.Tasks` | 1 Cancelled | 400 BadRequest |
 | `TimeoutException` | `System` | 4 DeadlineExceeded | 504 GatewayTimeout |
 | `UnauthorizedAccessException` | `System` | 7 PermissionDenied | 403 Forbidden |
-| `ValidationFailedException` | `ToolPack Exceptions` | 9 FailedPrecondition | 400 BadRequest |
-
+| `ValidationFailedException` | `ToolPack.Exceptions.Base` | 9 FailedPrecondition | 400 BadRequest |
