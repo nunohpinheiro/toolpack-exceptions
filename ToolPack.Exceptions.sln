@@ -30,6 +30,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "tests\UnitTest
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ToolPack.Exceptions.Base", "src\ToolPack.Exceptions.Base\ToolPack.Exceptions.Base.csproj", "{20702AB7-1184-4722-8392-72DDF981D0D5}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{B132483C-93FD-4E4B-8DB2-7D78D9E4F7F0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{5FBA3270-7C12-46D5-B408-8F4D7E5C8FF7}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\main.yml = .github\workflows\main.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,6 +73,8 @@ Global
 		{41F2C4D0-257B-4447-921C-754B5F565457} = {8D8A64B5-D769-4489-9BF2-FB6A54A12A7C}
 		{F6F3E115-9AD4-44DB-B2C5-1E6162002ECE} = {3D5CCFE3-F7F9-422F-BD1D-2AC759621C48}
 		{20702AB7-1184-4722-8392-72DDF981D0D5} = {3F35F7DF-05EF-4646-A77E-6C4C4F3FFEE5}
+		{B132483C-93FD-4E4B-8DB2-7D78D9E4F7F0} = {F88E379D-A3CA-4514-9360-97E802149B2D}
+		{5FBA3270-7C12-46D5-B408-8F4D7E5C8FF7} = {B132483C-93FD-4E4B-8DB2-7D78D9E4F7F0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FB0030B7-0BF9-4706-B1CD-A9E041A317D6}
