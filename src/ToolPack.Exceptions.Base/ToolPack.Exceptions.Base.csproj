@@ -1,37 +1,36 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
 
-    <IsPackable>true</IsPackable>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <IsPackable>true</IsPackable>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
-    <PackageId>ToolPack.Exceptions.Base</PackageId>
+        <Authors>nunohpinheiro</Authors>
 
-    <Version>1.0.0</Version>
+        <Description>
+            NuGet package with custom hierarchy-related exceptions, as well as an exception guard throwing exceptions against non-matching conditions.
+            Repo: https://github.com/nunohpinheiro/toolpack-exceptions
+        </Description>
 
-    <PackageProjectUrl></PackageProjectUrl>
-    <ProjectUrl></ProjectUrl>
-    <RepositoryUrl></RepositoryUrl>
+        <PackageVersion>1.0.0</PackageVersion>
 
-    <Authors>nunohpinheiro</Authors>
+        <PackageId>ToolPack.Exceptions.Base</PackageId>
+        <PackageProjectUrl>https://github.com/nunohpinheiro/toolpack-exceptions</PackageProjectUrl>
+        <PackageReadmeFile>..\..\README.md</PackageReadmeFile>
+        <PackageTags>Exceptions;ExceptionGuard</PackageTags>
 
-    <PackageTags>Exceptions;ExceptionGuard</PackageTags>
+        <RepositoryUrl>https://github.com/nunohpinheiro/toolpack-exceptions</RepositoryUrl>
+    </PropertyGroup>
 
-    <Description>
-      NuGet package with custom hierarchy-related exceptions, as well as an exception guard against matching conditions.
-      Repo: 
-    </Description>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="FluentValidation" Version="10.2.3" />
-    <PackageReference Include="Grpc.AspNetCore.Server" Version="2.38.0" />
-    <PackageReference Include="Grpc.Core.Api" Version="2.38.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
-    <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="FluentValidation" Version="10.2.3" />
+        <PackageReference Include="Grpc.AspNetCore.Server" Version="2.38.0" />
+        <PackageReference Include="Grpc.Core.Api" Version="2.38.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+        <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
+    </ItemGroup>
 
 </Project>
