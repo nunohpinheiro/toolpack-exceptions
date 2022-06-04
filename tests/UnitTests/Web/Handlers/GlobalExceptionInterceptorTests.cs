@@ -1,232 +1,214 @@
-namespace ToolPack.Exceptions.UnitTests.Web.Handlers
+namespace ToolPack.Exceptions.UnitTests.Web.Handlers;
+
+using FluentAssertions;
+using Grpc.Core;
+using Microsoft.Extensions.Logging;
+using Moq;
+using NUnit.Framework;
+using System;
+using System.Threading.Tasks;
+using ToolPack.Exceptions.Web.Handlers;
+using ToolPack.Exceptions.Web.Services.Interfaces;
+
+public class GlobalExceptionInterceptorTests
 {
-    using FluentAssertions;
-    using Grpc.Core;
-    using Microsoft.Extensions.Logging;
-    using Moq;
-    using NUnit.Framework;
-    using System;
-    using System.Threading.Tasks;
-    using ToolPack.Exceptions.Web.Handlers;
-    using ToolPack.Exceptions.Web.Models;
-    using ToolPack.Exceptions.Web.Services.Interfaces;
+    private static Mock<ServerCallContext> ServerCallContextMock => new();
+    private static Mock<ILogger<GlobalExceptionInterceptor>> LoggerMock => new();
+    private static Mock<IProblemDetailsService> ProblemDetailsSvcMock => new();
 
-    public class GlobalExceptionInterceptorTests
+    [Test]
+    public void ClientStreamingServerHandler_MethodNotThrowsException_ProblemDetailsServiceIsNotCalled()
     {
-        private static Mock<ServerCallContext> ServerCallContextMock => new();
-        private static Mock<ILogger<GlobalExceptionInterceptor>> LoggerMock => new();
-        private static Mock<IProblemDetailsService> ProblemDetailsSvcMock => new();
+        // Arrange
+        Mock<IAsyncStreamReader<object>> requestMock = new();
 
-        [Test]
-        public void ClientStreamingServerHandler_MethodNotThrowsException_ProblemDetailsServiceIsNotCalled()
-        {
-            // Arrange
-            Mock<IAsyncStreamReader<object>> requestMock = new();
+        Mock<ClientStreamingServerMethod<object, object>> continuationMethodMock = new();
 
-            Mock<ClientStreamingServerMethod<object, object>> continuationMethodMock = new();
+        var problemDetailsSvcMock = ProblemDetailsSvcMock;
 
-            var problemDetailsSvcMock = ProblemDetailsSvcMock;
+        var exceptionsInterceptor = new GlobalExceptionInterceptor(LoggerMock.Object, problemDetailsSvcMock.Object);
 
-            var exceptionsInterceptor = new GlobalExceptionInterceptor(LoggerMock.Object, problemDetailsSvcMock.Object);
+        // Act
+        Func<Task> act = async () =>
+            await exceptionsInterceptor.ClientStreamingServerHandler(requestMock.Object, ServerCallContextMock.Object, continuationMethodMock.Object);
 
-            WebErrorStatus errorStatus = It.IsAny<WebErrorStatus>();
+        // Assert
+        act.Should().NotThrowAsync();
+        problemDetailsSvcMock.Verify(
+            x => x.BuildProblemDetailsResponse(It.IsAny<Exception>()),
+            Times.Never);
+    }
 
-            // Act
-            Func<Task> act = async () =>
-                await exceptionsInterceptor.ClientStreamingServerHandler(requestMock.Object, ServerCallContextMock.Object, continuationMethodMock.Object);
+    [Test]
+    public void ClientStreamingServerHandler_MethodThrowsException_ProblemDetailsServiceIsCalled()
+    {
+        // Arrange
+        Mock<IAsyncStreamReader<object>> requestMock = new();
 
-            // Assert
-            act.Should().NotThrow();
-            problemDetailsSvcMock.Verify(
-                x => x.BuildProblemDetailsResponse(It.IsAny<Exception>()),
-                Times.Never);
-        }
+        var exception = new Exception("sample message");
+        Mock<ClientStreamingServerMethod<object, object>> continuationMethodMock = new();
+        continuationMethodMock.Setup(m => m(requestMock.Object, ServerCallContextMock.Object)).ThrowsAsync(exception);
 
-        [Test]
-        public void ClientStreamingServerHandler_MethodThrowsException_ProblemDetailsServiceIsCalled()
-        {
-            // Arrange
-            Mock<IAsyncStreamReader<object>> requestMock = new();
+        var problemDetailsSvcMock = ProblemDetailsSvcMock;
 
-            var exception = new Exception("sample message");
-            Mock<ClientStreamingServerMethod<object, object>> continuationMethodMock = new();
-            continuationMethodMock.Setup(m => m(requestMock.Object, ServerCallContextMock.Object)).ThrowsAsync(exception);
+        var exceptionsInterceptor = new GlobalExceptionInterceptor(LoggerMock.Object, problemDetailsSvcMock.Object);
 
-            var problemDetailsSvcMock = ProblemDetailsSvcMock;
+        // Act
+        Func<Task> act = async () =>
+            await exceptionsInterceptor.ClientStreamingServerHandler(requestMock.Object, ServerCallContextMock.Object, continuationMethodMock.Object);
 
-            var exceptionsInterceptor = new GlobalExceptionInterceptor(LoggerMock.Object, problemDetailsSvcMock.Object);
+        // Assert
+        act.Should().ThrowAsync<RpcException>();
+        problemDetailsSvcMock.Verify(
+            x => x.BuildProblemDetailsResponse(It.IsAny<Exception>()),
+            Times.Never);
+    }
 
-            WebErrorStatus errorStatus = It.IsAny<WebErrorStatus>();
+    [Test]
+    public void DuplexStreamingServerHandler_MethodNotThrowsException_ProblemDetailsServiceIsNotCalled()
+    {
+        // Arrange
+        Mock<IAsyncStreamReader<object>> requestMock = new();
+        Mock<IServerStreamWriter<object>> responseMock = new();
 
-            // Act
-            Func<Task> act = async () =>
-                await exceptionsInterceptor.ClientStreamingServerHandler(requestMock.Object, ServerCallContextMock.Object, continuationMethodMock.Object);
+        Mock<DuplexStreamingServerMethod<object, object>> continuationMethodMock = new();
 
-            // Assert
-            act.Should().ThrowAsync<RpcException>();
-            problemDetailsSvcMock.Verify(
-                x => x.BuildProblemDetailsResponse(It.IsAny<Exception>()),
-                Times.Never);
-        }
+        var problemDetailsSvcMock = ProblemDetailsSvcMock;
 
-        [Test]
-        public void DuplexStreamingServerHandler_MethodNotThrowsException_ProblemDetailsServiceIsNotCalled()
-        {
-            // Arrange
-            Mock<IAsyncStreamReader<object>> requestMock = new();
-            Mock<IServerStreamWriter<object>> responseMock = new();
+        var exceptionsInterceptor = new GlobalExceptionInterceptor(LoggerMock.Object, problemDetailsSvcMock.Object);
 
-            Mock<DuplexStreamingServerMethod<object, object>> continuationMethodMock = new();
+        // Act
+        Func<Task> act = async () =>
+            await exceptionsInterceptor.DuplexStreamingServerHandler(requestMock.Object, responseMock.Object, ServerCallContextMock.Object, continuationMethodMock.Object);
 
-            var problemDetailsSvcMock = ProblemDetailsSvcMock;
+        // Assert
+        act.Should().NotThrowAsync();
+        problemDetailsSvcMock.Verify(
+            x => x.BuildProblemDetailsResponse(It.IsAny<Exception>()),
+            Times.Never);
+    }
 
-            var exceptionsInterceptor = new GlobalExceptionInterceptor(LoggerMock.Object, problemDetailsSvcMock.Object);
+    [Test]
+    public void DuplexStreamingServerHandler_MethodThrowsException_ProblemDetailsServiceIsCalled()
+    {
+        // Arrange
+        Mock<IAsyncStreamReader<object>> requestMock = new();
+        Mock<IServerStreamWriter<object>> responseMock = new();
 
-            WebErrorStatus errorStatus = It.IsAny<WebErrorStatus>();
+        var exception = new Exception("sample message");
+        Mock<DuplexStreamingServerMethod<object, object>> continuationMethodMock = new();
+        continuationMethodMock.Setup(m => m(requestMock.Object, responseMock.Object, ServerCallContextMock.Object)).ThrowsAsync(exception);
 
-            // Act
-            Func<Task> act = async () =>
-                await exceptionsInterceptor.DuplexStreamingServerHandler(requestMock.Object, responseMock.Object, ServerCallContextMock.Object, continuationMethodMock.Object);
+        var problemDetailsSvcMock = ProblemDetailsSvcMock;
 
-            // Assert
-            act.Should().NotThrow();
-            problemDetailsSvcMock.Verify(
-                x => x.BuildProblemDetailsResponse(It.IsAny<Exception>()),
-                Times.Never);
-        }
+        var exceptionsInterceptor = new GlobalExceptionInterceptor(LoggerMock.Object, problemDetailsSvcMock.Object);
 
-        [Test]
-        public void DuplexStreamingServerHandler_MethodThrowsException_ProblemDetailsServiceIsCalled()
-        {
-            // Arrange
-            Mock<IAsyncStreamReader<object>> requestMock = new();
-            Mock<IServerStreamWriter<object>> responseMock = new();
+        // Act
+        Func<Task> act = async () =>
+            await exceptionsInterceptor.DuplexStreamingServerHandler(requestMock.Object, responseMock.Object, ServerCallContextMock.Object, continuationMethodMock.Object);
 
-            var exception = new Exception("sample message");
-            Mock<DuplexStreamingServerMethod<object, object>> continuationMethodMock = new();
-            continuationMethodMock.Setup(m => m(requestMock.Object, responseMock.Object, ServerCallContextMock.Object)).ThrowsAsync(exception);
+        // Assert
+        act.Should().ThrowAsync<RpcException>();
+        problemDetailsSvcMock.Verify(
+            x => x.BuildProblemDetailsResponse(It.IsAny<Exception>()),
+            Times.Never);
+    }
 
-            var problemDetailsSvcMock = ProblemDetailsSvcMock;
+    [Test]
+    public void ServerStreamingServerHandler_MethodNotThrowsException_ProblemDetailsServiceIsNotCalled()
+    {
+        // Arrange
+        Mock<IAsyncStreamReader<object>> requestMock = new();
+        Mock<IServerStreamWriter<object>> responseMock = new();
 
-            var exceptionsInterceptor = new GlobalExceptionInterceptor(LoggerMock.Object, problemDetailsSvcMock.Object);
+        Mock<ServerStreamingServerMethod<object, object>> continuationMethodMock = new();
 
-            WebErrorStatus errorStatus = It.IsAny<WebErrorStatus>();
+        var problemDetailsSvcMock = ProblemDetailsSvcMock;
 
-            // Act
-            Func<Task> act = async () =>
-                await exceptionsInterceptor.DuplexStreamingServerHandler(requestMock.Object, responseMock.Object, ServerCallContextMock.Object, continuationMethodMock.Object);
+        var exceptionsInterceptor = new GlobalExceptionInterceptor(LoggerMock.Object, problemDetailsSvcMock.Object);
 
-            // Assert
-            act.Should().ThrowAsync<RpcException>();
-            problemDetailsSvcMock.Verify(
-                x => x.BuildProblemDetailsResponse(It.IsAny<Exception>()),
-                Times.Never);
-        }
+        // Act
+        Func<Task> act = async () =>
+            await exceptionsInterceptor.ServerStreamingServerHandler(requestMock.Object, responseMock.Object, ServerCallContextMock.Object, continuationMethodMock.Object);
 
-        [Test]
-        public void ServerStreamingServerHandler_MethodNotThrowsException_ProblemDetailsServiceIsNotCalled()
-        {
-            // Arrange
-            Mock<IAsyncStreamReader<object>> requestMock = new();
-            Mock<IServerStreamWriter<object>> responseMock = new();
+        // Assert
+        act.Should().NotThrowAsync();
+        problemDetailsSvcMock.Verify(
+            x => x.BuildProblemDetailsResponse(It.IsAny<Exception>()),
+            Times.Never);
+    }
 
-            Mock<ServerStreamingServerMethod<object, object>> continuationMethodMock = new();
+    [Test]
+    public void ServerStreamingServerHandler_MethodThrowsException_ProblemDetailsServiceIsCalled()
+    {
+        // Arrange
+        Mock<IAsyncStreamReader<object>> requestMock = new();
+        Mock<IServerStreamWriter<object>> responseMock = new();
 
-            var problemDetailsSvcMock = ProblemDetailsSvcMock;
+        var exception = new Exception("sample message");
+        Mock<ServerStreamingServerMethod<object, object>> continuationMethodMock = new();
+        continuationMethodMock.Setup(m => m(requestMock.Object, responseMock.Object, ServerCallContextMock.Object)).ThrowsAsync(exception);
 
-            var exceptionsInterceptor = new GlobalExceptionInterceptor(LoggerMock.Object, problemDetailsSvcMock.Object);
+        var problemDetailsSvcMock = ProblemDetailsSvcMock;
 
-            WebErrorStatus errorStatus = It.IsAny<WebErrorStatus>();
+        var exceptionsInterceptor = new GlobalExceptionInterceptor(LoggerMock.Object, problemDetailsSvcMock.Object);
 
-            // Act
-            Func<Task> act = async () =>
-                await exceptionsInterceptor.ServerStreamingServerHandler(requestMock.Object, responseMock.Object, ServerCallContextMock.Object, continuationMethodMock.Object);
+        // Act
+        Func<Task> act = async () =>
+            await exceptionsInterceptor.ServerStreamingServerHandler(requestMock.Object, responseMock.Object, ServerCallContextMock.Object, continuationMethodMock.Object);
 
-            // Assert
-            act.Should().NotThrow();
-            problemDetailsSvcMock.Verify(
-                x => x.BuildProblemDetailsResponse(It.IsAny<Exception>()),
-                Times.Never);
-        }
+        // Assert
+        act.Should().ThrowAsync<RpcException>();
+        problemDetailsSvcMock.Verify(
+            x => x.BuildProblemDetailsResponse(It.IsAny<Exception>()),
+            Times.Never);
+    }
 
-        [Test]
-        public void ServerStreamingServerHandler_MethodThrowsException_ProblemDetailsServiceIsCalled()
-        {
-            // Arrange
-            Mock<IAsyncStreamReader<object>> requestMock = new();
-            Mock<IServerStreamWriter<object>> responseMock = new();
+    [Test]
+    public void UnaryServerHandler_MethodNotThrowsException_ProblemDetailsServiceIsNotCalled()
+    {
+        // Arrange
+        Mock<IAsyncStreamReader<object>> requestMock = new();
 
-            var exception = new Exception("sample message");
-            Mock<ServerStreamingServerMethod<object, object>> continuationMethodMock = new();
-            continuationMethodMock.Setup(m => m(requestMock.Object, responseMock.Object, ServerCallContextMock.Object)).ThrowsAsync(exception);
+        Mock<UnaryServerMethod<object, object>> continuationMethodMock = new();
 
-            var problemDetailsSvcMock = ProblemDetailsSvcMock;
+        var problemDetailsSvcMock = ProblemDetailsSvcMock;
 
-            var exceptionsInterceptor = new GlobalExceptionInterceptor(LoggerMock.Object, problemDetailsSvcMock.Object);
+        var exceptionsInterceptor = new GlobalExceptionInterceptor(LoggerMock.Object, problemDetailsSvcMock.Object);
 
-            WebErrorStatus errorStatus = It.IsAny<WebErrorStatus>();
+        // Act
+        Func<Task> act = async () =>
+            await exceptionsInterceptor.UnaryServerHandler(requestMock.Object, ServerCallContextMock.Object, continuationMethodMock.Object);
 
-            // Act
-            Func<Task> act = async () =>
-                await exceptionsInterceptor.ServerStreamingServerHandler(requestMock.Object, responseMock.Object, ServerCallContextMock.Object, continuationMethodMock.Object);
+        // Assert
+        act.Should().NotThrowAsync();
+        problemDetailsSvcMock.Verify(
+            x => x.BuildProblemDetailsResponse(It.IsAny<Exception>()),
+            Times.Never);
+    }
 
-            // Assert
-            act.Should().ThrowAsync<RpcException>();
-            problemDetailsSvcMock.Verify(
-                x => x.BuildProblemDetailsResponse(It.IsAny<Exception>()),
-                Times.Never);
-        }
+    [Test]
+    public void UnaryServerHandler_MethodThrowsException_ProblemDetailsServiceIsCalled()
+    {
+        // Arrange
+        Mock<IAsyncStreamReader<object>> requestMock = new();
 
-        [Test]
-        public void UnaryServerHandler_MethodNotThrowsException_ProblemDetailsServiceIsNotCalled()
-        {
-            // Arrange
-            Mock<IAsyncStreamReader<object>> requestMock = new();
+        var exception = new Exception("sample message");
+        Mock<UnaryServerMethod<object, object>> continuationMethodMock = new();
+        continuationMethodMock.Setup(m => m(requestMock.Object, ServerCallContextMock.Object)).ThrowsAsync(exception);
 
-            Mock<UnaryServerMethod<object, object>> continuationMethodMock = new();
+        var problemDetailsSvcMock = ProblemDetailsSvcMock;
 
-            var problemDetailsSvcMock = ProblemDetailsSvcMock;
+        var exceptionsInterceptor = new GlobalExceptionInterceptor(LoggerMock.Object, problemDetailsSvcMock.Object);
 
-            var exceptionsInterceptor = new GlobalExceptionInterceptor(LoggerMock.Object, problemDetailsSvcMock.Object);
+        // Act
+        Func<Task> act = async () =>
+            await exceptionsInterceptor.UnaryServerHandler(requestMock.Object, ServerCallContextMock.Object, continuationMethodMock.Object);
 
-            WebErrorStatus errorStatus = It.IsAny<WebErrorStatus>();
-
-            // Act
-            Func<Task> act = async () =>
-                await exceptionsInterceptor.UnaryServerHandler(requestMock.Object, ServerCallContextMock.Object, continuationMethodMock.Object);
-
-            // Assert
-            act.Should().NotThrow();
-            problemDetailsSvcMock.Verify(
-                x => x.BuildProblemDetailsResponse(It.IsAny<Exception>()),
-                Times.Never);
-        }
-
-        [Test]
-        public void UnaryServerHandler_MethodThrowsException_ProblemDetailsServiceIsCalled()
-        {
-            // Arrange
-            Mock<IAsyncStreamReader<object>> requestMock = new();
-
-            var exception = new Exception("sample message");
-            Mock<UnaryServerMethod<object, object>> continuationMethodMock = new();
-            continuationMethodMock.Setup(m => m(requestMock.Object, ServerCallContextMock.Object)).ThrowsAsync(exception);
-
-            var problemDetailsSvcMock = ProblemDetailsSvcMock;
-
-            var exceptionsInterceptor = new GlobalExceptionInterceptor(LoggerMock.Object, problemDetailsSvcMock.Object);
-
-            WebErrorStatus errorStatus = It.IsAny<WebErrorStatus>();
-
-            // Act
-            Func<Task> act = async () =>
-                await exceptionsInterceptor.UnaryServerHandler(requestMock.Object, ServerCallContextMock.Object, continuationMethodMock.Object);
-
-            // Assert
-            act.Should().ThrowAsync<RpcException>();
-            problemDetailsSvcMock.Verify(
-                x => x.BuildProblemDetailsResponse(It.IsAny<Exception>()),
-                Times.Never);
-        }
+        // Assert
+        act.Should().ThrowAsync<RpcException>();
+        problemDetailsSvcMock.Verify(
+            x => x.BuildProblemDetailsResponse(It.IsAny<Exception>()),
+            Times.Never);
     }
 }
