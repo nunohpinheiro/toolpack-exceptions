@@ -1,76 +1,75 @@
-namespace ToolPack.Exceptions.UnitTests.Web.Services
+namespace ToolPack.Exceptions.UnitTests.Web.Services;
+
+using FluentAssertions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Moq;
+using NUnit.Framework;
+using System;
+using System.Diagnostics;
+using ToolPack.Exceptions.Base.Entities;
+using ToolPack.Exceptions.Web.Extensions;
+using ToolPack.Exceptions.Web.Models;
+using ToolPack.Exceptions.Web.Services.Implementations;
+
+public class ProblemDetailsServiceTests
 {
-    using FluentAssertions;
-    using Microsoft.AspNetCore.Http;
-    using Microsoft.Extensions.Logging;
-    using Moq;
-    using NUnit.Framework;
-    using System;
-    using System.Diagnostics;
-    using ToolPack.Exceptions.Base.Entities;
-    using ToolPack.Exceptions.Web.Extensions;
-    using ToolPack.Exceptions.Web.Models;
-    using ToolPack.Exceptions.Web.Services.Implementations;
+    private static Mock<ILogger<ProblemDetailsService>> LoggerMock => new();
 
-    public class ProblemDetailsServiceTests
+    [Test]
+    public void BuildProblemDetailsResponse_ExceptionIsNull_ReturnsDefault()
     {
-        private static Mock<ILogger<ProblemDetailsService>> LoggerMock => new();
+        // Arrange
+        var expectedErrorStatus = WebErrorStatuses.InternalUnknownError;
+        var expectedResult = expectedErrorStatus.HttpCode.ToString();
+        ProblemDetailsService problemDetailsService = new(GetHttpContextAccessorMock().Object, LoggerMock.Object);
 
-        [Test]
-        public void BuildProblemDetailsResponse_ExceptionIsNull_ReturnsDefault()
-        {
-            // Arrange
-            var expectedErrorStatus = WebErrorStatuses.InternalUnknownError;
-            var expectedResult = expectedErrorStatus.HttpCode.ToString();
-            ProblemDetailsService problemDetailsService = new(GetHttpContextAccessorMock().Object, LoggerMock.Object);
+        // Act
+        var (result, errorStatus) = problemDetailsService.BuildProblemDetailsResponse(null);
 
-            // Act
-            var (result, errorStatus) = problemDetailsService.BuildProblemDetailsResponse(null);
+        // Assert
+        result.Should().Be(expectedResult);
+        errorStatus.Should().BeEquivalentTo(expectedErrorStatus);
+    }
 
-            // Assert
-            result.Should().Be(expectedResult);
-            errorStatus.Should().BeEquivalentTo(expectedErrorStatus);
-        }
+    [Test]
+    public void BuildProblemDetailsResponse_ExceptionIsValid_ReturnsMatchingProblemDetailsString()
+    {
+        // Arrange
+        var httpContextAccessorMock = GetHttpContextAccessorMock();
 
-        [Test]
-        public void BuildProblemDetailsResponse_ExceptionIsValid_ReturnsMatchingProblemDetailsString()
-        {
-            // Arrange
-            var httpContextAccessorMock = GetHttpContextAccessorMock();
+        CustomBaseException exception = new();
+        ProblemDetails exceptionProblemDetails = GetProblemDetailsFromException(exception, httpContextAccessorMock.Object, out WebErrorStatus expectedErrorStatus);
+        _ = exceptionProblemDetails.TrySerializeCamelCase(out string expectedProblemDetailsJson, out _);
 
-            CustomBaseException exception = new();
-            ProblemDetails exceptionProblemDetails = GetProblemDetailsFromException(exception, httpContextAccessorMock.Object, out WebErrorStatus expectedErrorStatus);
-            _ = exceptionProblemDetails.TrySerializeCamelCase(out string expectedProblemDetailsJson, out _);
+        ProblemDetailsService problemDetailsService = new(httpContextAccessorMock.Object, LoggerMock.Object);
 
-            ProblemDetailsService problemDetailsService = new(httpContextAccessorMock.Object, LoggerMock.Object);
+        // Act
+        var (result, errorStatus) = problemDetailsService.BuildProblemDetailsResponse(exception);
 
-            // Act
-            var (result, errorStatus) = problemDetailsService.BuildProblemDetailsResponse(exception);
+        // Assert
+        result.Should().Be(expectedProblemDetailsJson);
+        errorStatus.Should().BeEquivalentTo(expectedErrorStatus);
+    }
 
-            // Assert
-            result.Should().Be(expectedProblemDetailsJson);
-            errorStatus.Should().BeEquivalentTo(expectedErrorStatus);
-        }
+    private static Mock<IHttpContextAccessor> GetHttpContextAccessorMock()
+    {
+        var mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
 
-        private static Mock<IHttpContextAccessor> GetHttpContextAccessorMock()
-        {
-            var mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
+        mockHttpContextAccessor.Setup(_ => _.HttpContext).Returns(new DefaultHttpContext());
 
-            mockHttpContextAccessor.Setup(_ => _.HttpContext).Returns(new DefaultHttpContext());
+        return mockHttpContextAccessor;
+    }
 
-            return mockHttpContextAccessor;
-        }
+    private ProblemDetails GetProblemDetailsFromException(
+        Exception exception,
+        IHttpContextAccessor httpContextAccessor,
+        out WebErrorStatus exceptionErrorStatus)
+    {
+        ProblemDetailsWebResponse problemDetailsWebResponse = new(exception, Activity.Current?.Id ?? httpContextAccessor?.HttpContext?.TraceIdentifier);
 
-        private ProblemDetails GetProblemDetailsFromException(
-            Exception exception,
-            IHttpContextAccessor httpContextAccessor,
-            out WebErrorStatus exceptionErrorStatus)
-        {
-            ProblemDetailsWebResponse problemDetailsWebResponse = new(exception, Activity.Current?.Id ?? httpContextAccessor?.HttpContext?.TraceIdentifier);
+        exceptionErrorStatus = problemDetailsWebResponse.WebErrorStatus;
 
-            exceptionErrorStatus = problemDetailsWebResponse.WebErrorStatus;
-
-            return problemDetailsWebResponse.ProblemDetails;
-        }
+        return problemDetailsWebResponse.ProblemDetails;
     }
 }

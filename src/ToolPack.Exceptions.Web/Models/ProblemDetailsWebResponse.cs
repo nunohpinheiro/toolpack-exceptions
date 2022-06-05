@@ -1,19 +1,18 @@
-namespace ToolPack.Exceptions.Web.Models
+namespace ToolPack.Exceptions.Web.Models;
+
+using System;
+
+internal class ProblemDetailsWebResponse
 {
-    using System;
+    internal ProblemDetails ProblemDetails { get; init; }
+    internal WebErrorStatus WebErrorStatus { get; init; }
 
-    internal class ProblemDetailsWebResponse
+    /// <summary>Creates a ProblemDetailsWebResponse instance with properties derived from a given exception.</summary>
+    /// <param name="exception">Exception from which the ProblemDetails and WebErrorStatus properties are constructed.</param>
+    /// <param name="traceId">Tracing identifier related with the context of the ProblemDetails property.</param>
+    internal ProblemDetailsWebResponse(Exception exception, string traceId)
     {
-        internal ProblemDetails ProblemDetails { get; init; }
-        internal WebErrorStatus WebErrorStatus { get; init; }
-
-        /// <summary>Creates a ProblemDetailsWebResponse instance with properties derived from a given exception.</summary>
-        /// <param name="exception">Exception from which the ProblemDetails and WebErrorStatus properties are constructed.</param>
-        /// <param name="traceId">Tracing identifier related with the context of the ProblemDetails property.</param>
-        internal ProblemDetailsWebResponse(Exception exception, string traceId)
-        {
-            ProblemDetails = new(exception, traceId);
-            WebErrorStatus = WebErrorStatuses.GetFromException(exception);
-        }
+        ProblemDetails = new(exception, traceId);
+        WebErrorStatus = WebErrorStatuses.GetFromException(exception);
     }
 }

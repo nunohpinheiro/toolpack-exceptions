@@ -1,43 +1,42 @@
-namespace ToolPack.Exceptions.UnitTests.Web.Extensions
+namespace ToolPack.Exceptions.UnitTests.Web.Extensions;
+
+using FluentAssertions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using NUnit.Framework;
+using ToolPack.Exceptions.Web.Extensions;
+using ToolPack.Exceptions.Web.Services.Interfaces;
+
+public class DependencyInjectionExtensionsTests
 {
-    using FluentAssertions;
-    using Microsoft.AspNetCore.Http;
-    using Microsoft.Extensions.DependencyInjection;
-    using NUnit.Framework;
-    using ToolPack.Exceptions.Web.Extensions;
-    using ToolPack.Exceptions.Web.Services.Interfaces;
+    private static IServiceCollection _servicesFixture => new ServiceCollection().AddLogging();
 
-    public class DependencyInjectionExtensionsTests
+    [Test]
+    public void AddToolPackExceptions_ExpectedServicesAreAdded()
     {
-        private static IServiceCollection _servicesFixture => new ServiceCollection().AddLogging();
+        // Act
+        var servicesResult = _servicesFixture.AddToolPackExceptions();
 
-        [Test]
-        public void AddToolPackExceptions_ExpectedServicesAreAdded()
-        {
-            // Act
-            var servicesResult = _servicesFixture.AddToolPackExceptions();
+        // Assert
+        AssertExceptionServices(servicesResult);
+    }
 
-            // Assert
-            AssertExceptionServices(servicesResult);
-        }
+    [Test]
+    public void AddToolPackExceptionsGrpc_ExpectedServicesAreAdded()
+    {
+        // Act
+        var servicesResult = _servicesFixture.AddToolPackExceptionsGrpc();
 
-        [Test]
-        public void AddToolPackExceptionsGrpc_ExpectedServicesAreAdded()
-        {
-            // Act
-            var servicesResult = _servicesFixture.AddToolPackExceptionsGrpc();
+        // Assert
+        AssertExceptionServices(servicesResult);
+    }
 
-            // Assert
-            AssertExceptionServices(servicesResult);
-        }
+    private static void AssertExceptionServices(IServiceCollection services)
+    {
+        var problemDetailsSvc = services.BuildServiceProvider().GetService<IProblemDetailsService>();
+        var httpContextSvc = services.BuildServiceProvider().GetService<IHttpContextAccessor>();
 
-        private static void AssertExceptionServices(IServiceCollection services)
-        {
-            var problemDetailsSvc = services.BuildServiceProvider().GetService<IProblemDetailsService>();
-            var httpContextSvc = services.BuildServiceProvider().GetService<IHttpContextAccessor>();
-
-            problemDetailsSvc.Should().NotBeNull();
-            httpContextSvc.Should().NotBeNull();
-        }
+        problemDetailsSvc.Should().NotBeNull();
+        httpContextSvc.Should().NotBeNull();
     }
 }
