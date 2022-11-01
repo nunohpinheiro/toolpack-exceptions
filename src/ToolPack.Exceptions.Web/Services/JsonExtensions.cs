@@ -1,4 +1,4 @@
-namespace ToolPack.Exceptions.Web.Extensions;
+namespace ToolPack.Exceptions.Web.Services;
 
 using System;
 using System.Text.Json;

@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
-using ToolPack.Exceptions.Web.Extensions;
 using ToolPack.Exceptions.Web.Models;
 using ToolPack.Exceptions.Web.Services.Interfaces;
 
@@ -21,25 +20,24 @@ internal class ProblemDetailsService : IProblemDetailsService
         _logger = logger;
     }
 
-    public (string, WebErrorStatus) BuildProblemDetailsResponse(Exception exception)
+    public (string, WebErrorStatus) BuildProblemDetailsResponse<T>(T exception)
+        where T : Exception
+    {
+        var traceId = Activity.Current?.Id ?? _httpContextAccessor?.HttpContext?.TraceIdentifier;
+        return GetProblemDetailsWebErrorResponse(exception, traceId);
+    }
+
+    private (string, WebErrorStatus) GetProblemDetailsWebErrorResponse<T>(T exception, string traceId)
+        where T : Exception
     {
         if (exception is null)
         {
             _logger.LogWarning("A null exception was used to build a response with ProblemDetails. A default will be returned.");
-            return (WebErrorStatuses.InternalUnknownError.HttpCode.ToString(), WebErrorStatuses.InternalUnknownError);
+            return GetDefaultProblemDetailsWebErrorResponse(traceId);
         }
 
-        return GetProblemDetailsWebErrorResponse(exception);
-    }
-
-    private (string, WebErrorStatus) GetProblemDetailsWebErrorResponse(Exception exception)
-    {
-        var traceId = Activity.Current?.Id ?? _httpContextAccessor?.HttpContext?.TraceIdentifier;
-
-        ProblemDetailsWebResponse problemDetailsResponse = new(exception, traceId);
-
-        if (TrySerializeProblemDetails(problemDetailsResponse.ProblemDetails, out var problemDetailsResponseJson))
-            return (problemDetailsResponseJson, problemDetailsResponse.WebErrorStatus);
+        if (TrySerializeProblemDetails(new(exception, traceId), out var problemDetailsResponseJson))
+            return (problemDetailsResponseJson, ExceptionToWebErrorMap.GetFromException(exception));
 
         return GetDefaultProblemDetailsWebErrorResponse(traceId);
     }
@@ -48,7 +46,7 @@ internal class ProblemDetailsService : IProblemDetailsService
     {
         TrySerializeProblemDetails(new(traceId), out var problemDetailsDefaultResponseJson);
 
-        return (problemDetailsDefaultResponseJson, WebErrorStatuses.InternalUnknownError);
+        return (problemDetailsDefaultResponseJson, new());
     }
 
     private bool TrySerializeProblemDetails(

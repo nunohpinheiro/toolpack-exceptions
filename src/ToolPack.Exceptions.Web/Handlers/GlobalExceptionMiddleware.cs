@@ -1,7 +1,3 @@
-using System.Runtime.CompilerServices;
-
-[assembly: InternalsVisibleTo("ToolPack.Exceptions.UnitTests")]
-[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 namespace ToolPack.Exceptions.Web.Handlers;
 
 using Microsoft.AspNetCore.Http;
@@ -54,7 +50,7 @@ internal class GlobalExceptionMiddleware
         if (httpContext?.Response is not null)
         {
             httpContext.Response.ContentType = MediaTypeNames.Application.Json;
-            httpContext.Response.StatusCode = (int)errorStatus.HttpCode;
+            httpContext.Response.StatusCode = errorStatus.HttpCode;
             await httpContext.Response.WriteAsync(problemDetailsResponse);
         }
         return;

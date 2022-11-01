@@ -3,6 +3,8 @@ namespace RestAPI.Controllers;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using RestAPI.CustomExceptions;
+using System;
 using System.Collections.Generic;
 using ToolPack.Exceptions.Base.Entities;
 using ToolPack.Exceptions.Base.Guard;
@@ -18,12 +20,20 @@ public class ExceptionsController : ControllerBase
         _logger = logger;
     }
 
+    [HttpGet("aggregate-exception")]
+    public IActionResult GetAggregateException()
+    {
+        _logger.LogInformation("Throwing AggregateException");
+
+        throw new AggregateException(new CustomBaseException(), new TimeoutException());
+    }
+
     [HttpGet("already-exists")]
     public IActionResult GetAlreadyExists()
     {
         _logger.LogInformation("Throwing AlreadyExistsException");
 
-        ThrowWhen.ConditionFails(false, new AlreadyExistsException());
+        ThrowIf.ConditionFails(false, new AlreadyExistsException());
         return Ok();
     }
 
@@ -35,13 +45,29 @@ public class ExceptionsController : ControllerBase
         throw new CustomBaseException();
     }
 
+    [HttpGet("enhance-your-calm")]
+    public IActionResult GetEnhanceYourCalm()
+    {
+        _logger.LogInformation("Throwing EnhanceYourCalmException");
+
+        throw new EnhanceYourCalmException();
+    }
+
     [HttpGet("external-component")]
     public IActionResult GetExternalException()
     {
         _logger.LogInformation("Throwing ExternalComponentException");
 
-        ThrowWhen.ConditionFails(false, new ExternalComponentException("component name", "component description"));
+        ThrowIf.ConditionFails(false, new ExternalComponentException("component name", "component description"));
         return Ok();
+    }
+
+    [HttpGet("inner-exception")]
+    public IActionResult GetInnerException()
+    {
+        _logger.LogInformation("Throwing exception with inner exception");
+
+        throw new CustomBaseException(new UnauthorizedAccessException());
     }
 
     [HttpGet("not-found")]
@@ -49,8 +75,16 @@ public class ExceptionsController : ControllerBase
     {
         _logger.LogInformation("Throwing NotFoundException");
 
-        ThrowWhen.ArgumentNullThrowNotFound<string>(null, "argument description", "argument identifier");
+        ThrowIf.ArgumentNullThrowNotFound<string>(null, "argument identifier");
         return Ok();
+    }
+
+    [HttpGet("tea-pot")]
+    public IActionResult GetTeaPot()
+    {
+        _logger.LogInformation("Throwing TeaPotException");
+
+        throw new TeaPotException();
     }
 
     [HttpGet("validation-failed-exception")]

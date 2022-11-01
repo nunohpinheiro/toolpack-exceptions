@@ -1,9 +1,9 @@
-namespace ToolPack.Exceptions.UnitTests.Web.Extensions;
+namespace ToolPack.Exceptions.UnitTests.Web.Services;
 
 using FluentAssertions;
 using NUnit.Framework;
 using System;
-using ToolPack.Exceptions.Web.Extensions;
+using ToolPack.Exceptions.Web.Services;
 
 public class JsonExtensionsTests
 {

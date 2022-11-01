@@ -1,21 +1,23 @@
-namespace ToolPack.Exceptions.UnitTests.Web.Extensions;
+namespace ToolPack.Exceptions.UnitTests.Web.DependencyInjection;
 
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
-using ToolPack.Exceptions.Web.Extensions;
+using ToolPack.Exceptions.Web.DependencyInjection;
 using ToolPack.Exceptions.Web.Services.Interfaces;
 
 public class DependencyInjectionExtensionsTests
 {
-    private static IServiceCollection _servicesFixture => new ServiceCollection().AddLogging();
+    private static IServiceCollection ServicesFixture => new ServiceCollection().AddLogging();
+
+    // TODO: Add tests including options (adding/overriding exception mappings)
 
     [Test]
     public void AddToolPackExceptions_ExpectedServicesAreAdded()
     {
         // Act
-        var servicesResult = _servicesFixture.AddToolPackExceptions();
+        var servicesResult = ServicesFixture.AddToolPackExceptions();
 
         // Assert
         AssertExceptionServices(servicesResult);
@@ -25,7 +27,7 @@ public class DependencyInjectionExtensionsTests
     public void AddToolPackExceptionsGrpc_ExpectedServicesAreAdded()
     {
         // Act
-        var servicesResult = _servicesFixture.AddToolPackExceptionsGrpc();
+        var servicesResult = ServicesFixture.AddToolPackExceptionsGrpc();
 
         // Assert
         AssertExceptionServices(servicesResult);

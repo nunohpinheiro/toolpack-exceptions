@@ -21,11 +21,11 @@ public class ProblemDetails : Microsoft.AspNetCore.Mvc.ProblemDetails
     /// <param name="exception">Exception from which the ProblemDetails properties are filled.</param>
     public ProblemDetails(Exception exception)
     {
-        var exceptionErrorStatus = WebErrorStatuses.GetFromException(exception);
+        var exceptionErrorStatus = ExceptionToWebErrorMap.GetFromException(exception);
 
         Detail = exception?.Message;
         Instance = exceptionErrorStatus.Description;
-        Status = (int)exceptionErrorStatus.HttpCode;
+        Status = exceptionErrorStatus.HttpCode;
         Title = exceptionErrorStatus.HttpCode.ToString();
         Type = exceptionErrorStatus.Description;
 
@@ -48,11 +48,19 @@ public class ProblemDetails : Microsoft.AspNetCore.Mvc.ProblemDetails
         var problemDetailsStatus = WebErrorStatuses.InternalUnknownError;
 
         Detail = problemDetailsStatus.HttpCode.ToString();
-        Status = (int)problemDetailsStatus.HttpCode;
+        Status = problemDetailsStatus.HttpCode;
         Title = problemDetailsStatus.HttpCode.ToString();
         TraceId = traceId;
         Type = problemDetailsStatus.Description;
     }
+
+    private static string FilterExceptionName<TException>(TException exception)
+    {
+        var exceptionNames = exception.GetType().Name.Split("Exception");
+        return string.Join(" ", exceptionNames).Trim();
+    }
+
+    // TODO: Add tests to ProblemDetails construction - more domain driven now
 
     private void SetErrors(Exception exception)
     {
@@ -72,7 +80,7 @@ public class ProblemDetails : Microsoft.AspNetCore.Mvc.ProblemDetails
     private void SetErrorsFromAggregateException(AggregateException exception)
     {
         var failureGroups = exception?.InnerExceptions?.GroupBy(
-                                e => string.IsNullOrWhiteSpace(e.Source) ? "UnknownSource" : e.Source,
+                                e => FilterExceptionName(e),
                                 e => e.Message);
 
         if (failureGroups?.Any() is not true)
@@ -94,7 +102,7 @@ public class ProblemDetails : Microsoft.AspNetCore.Mvc.ProblemDetails
         Errors = new Dictionary<string, string[]>
         {
             {
-                string.IsNullOrWhiteSpace(innerException.Source) ? "UnknownSource" : innerException.Source,
+                FilterExceptionName(innerException),
                 new string[1] { innerException.Message }
             }
         };

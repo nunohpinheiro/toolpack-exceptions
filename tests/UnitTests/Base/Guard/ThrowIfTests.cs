@@ -6,7 +6,7 @@ using System;
 using ToolPack.Exceptions.Base.Entities;
 using ToolPack.Exceptions.Base.Guard;
 
-public class ThrowWhenTests
+public class ThrowIfTests
 {
     private const string StringNullOrWhiteSpaceMsg = "String cannot be null, empty or white space. Argument description: ";
 
@@ -14,7 +14,7 @@ public class ThrowWhenTests
     public void ArgumentNull_EmptyParams_NotThrowsException()
     {
         // Act
-        Action act = () => ThrowWhen.ArgumentNull();
+        Action act = () => ThrowIf.ArgumentNull();
 
         // Assert
         act.Should().NotThrow();
@@ -34,7 +34,7 @@ public class ThrowWhenTests
         };
 
         // Act
-        Action act = () => ThrowWhen.ArgumentNull(paramsArray);
+        Action act = () => ThrowIf.ArgumentNull(paramsArray);
 
         // Assert
         act.Should().NotThrow();
@@ -54,7 +54,7 @@ public class ThrowWhenTests
         };
 
         // Act
-        Action act = () => ThrowWhen.ArgumentNull(paramsArray);
+        Action act = () => ThrowIf.ArgumentNull(paramsArray);
 
         // Assert
         act.Should().Throw<ArgumentNullException>()
@@ -75,7 +75,7 @@ public class ThrowWhenTests
         };
 
         // Act
-        Action act = () => ThrowWhen.ArgumentNull(paramsArray);
+        Action act = () => ThrowIf.ArgumentNull(paramsArray);
 
         // Assert
         act.Should().Throw<ArgumentNullException>()
@@ -90,7 +90,7 @@ public class ThrowWhenTests
         string argumentDescription = nameof(argument);
 
         // Act
-        Action act = () => ThrowWhen.ArgumentNull(argument, argumentDescription);
+        Action act = () => ThrowIf.ArgumentNull(argument);
 
         // Assert
         act.Should().Throw<ArgumentNullException>()
@@ -102,13 +102,12 @@ public class ThrowWhenTests
     {
         // Arrange
         int? argument = 3;
-        string argumentDescription = nameof(argument);
 
         // Act
-        Action act = () => ThrowWhen.ArgumentNull(argument, argumentDescription);
+        var result = ThrowIf.ArgumentNull(argument);
 
         // Assert
-        act.Should().NotThrow();
+        result.Should().Be(argument);
     }
 
     [Test]
@@ -122,7 +121,7 @@ public class ThrowWhenTests
         NotFoundException expectedException = new(argumentDescription, argumentKey);
 
         // Act
-        Action act = () => ThrowWhen.ArgumentNullThrowNotFound(argument, argumentDescription, argumentKey);
+        Action act = () => ThrowIf.ArgumentNullThrowNotFound(argument, argumentKey);
 
         // Assert
         act.Should().Throw<NotFoundException>()
@@ -134,13 +133,12 @@ public class ThrowWhenTests
     {
         // Arrange
         int? argument = 3;
-        string argumentDescription = nameof(argument);
 
         // Act
-        Action act = () => ThrowWhen.ArgumentNullThrowNotFound(argument, argumentDescription, "argument key");
+        var result = ThrowIf.ArgumentNullThrowNotFound(argument, "argument key");
 
         // Assert
-        act.Should().NotThrow();
+        result.Should().Be(argument);
     }
 
     [Test]
@@ -153,7 +151,7 @@ public class ThrowWhenTests
         ArgumentOutOfRangeException expectedException = new(argumentDescription);
 
         // Act
-        Action act = () => ThrowWhen.ArgumentOutOfRange(condition, argumentDescription);
+        Action act = () => ThrowIf.ArgumentOutOfRange(condition, argumentDescription);
 
         // Assert
         act.Should().Throw<ArgumentOutOfRangeException>()
@@ -168,23 +166,17 @@ public class ThrowWhenTests
         string argumentDescription = "sample description";
 
         // Act
-        Action act = () => ThrowWhen.ArgumentOutOfRange(condition, argumentDescription);
+        Action act = () => ThrowIf.ArgumentOutOfRange(condition, argumentDescription);
 
         // Assert
         act.Should().NotThrow();
     }
 
-
-
-
-
-
-
     [Test]
     public void ArgumentStringNullOrWhiteSpace_EmptyParams_NotThrowsException()
     {
         // Act
-        Action act = () => ThrowWhen.ArgumentStringNullOrWhiteSpace();
+        Action act = () => ThrowIf.ArgumentStringNullOrWhiteSpace();
 
         // Assert
         act.Should().NotThrow();
@@ -204,7 +196,7 @@ public class ThrowWhenTests
         };
 
         // Act
-        Action act = () => ThrowWhen.ArgumentStringNullOrWhiteSpace(paramsArray);
+        Action act = () => ThrowIf.ArgumentStringNullOrWhiteSpace(paramsArray);
 
         // Assert
         act.Should().NotThrow();
@@ -229,7 +221,7 @@ public class ThrowWhenTests
         var expectedMessage = $"{StringNullOrWhiteSpaceMsg}{nameof(argument1)}";
 
         // Act
-        Action act = () => ThrowWhen.ArgumentStringNullOrWhiteSpace(paramsArray);
+        Action act = () => ThrowIf.ArgumentStringNullOrWhiteSpace(paramsArray);
 
         // Assert
         act.Should().Throw<ArgumentException>()
@@ -255,7 +247,7 @@ public class ThrowWhenTests
         var expectedMessage = $"{StringNullOrWhiteSpaceMsg}{nameof(argument2)}";
 
         // Act
-        Action act = () => ThrowWhen.ArgumentStringNullOrWhiteSpace(paramsArray);
+        Action act = () => ThrowIf.ArgumentStringNullOrWhiteSpace(paramsArray);
 
         // Assert
         act.Should().Throw<ArgumentException>()
@@ -275,7 +267,7 @@ public class ThrowWhenTests
         var expectedMessage = $"{StringNullOrWhiteSpaceMsg}{argumentDescription}";
 
         // Act
-        Action act = () => ThrowWhen.ArgumentStringNullOrWhiteSpace(argument, argumentDescription);
+        Action act = () => ThrowIf.ArgumentStringNullOrWhiteSpace(argument);
 
         // Assert
         act.Should().Throw<ArgumentException>()
@@ -287,13 +279,12 @@ public class ThrowWhenTests
     {
         // Arrange
         string argument = "such a valid string";
-        string argumentDescription = nameof(argument);
 
         // Act
-        Action act = () => ThrowWhen.ArgumentStringNullOrWhiteSpace(argument, argumentDescription);
+        var result = ThrowIf.ArgumentStringNullOrWhiteSpace(argument);
 
         // Assert
-        act.Should().NotThrow();
+        result.Should().Be(argument);
     }
 
     [Test]
@@ -304,7 +295,7 @@ public class ThrowWhenTests
         var exception = new Exception("sample exception");
 
         // Act
-        Action act = () => ThrowWhen.ConditionFails(condition, exception);
+        Action act = () => ThrowIf.ConditionFails(condition, exception);
 
         // Assert
         act.Should().Throw<Exception>()
@@ -319,7 +310,7 @@ public class ThrowWhenTests
         var exception = new Exception("sample exception");
 
         // Act
-        Action act = () => ThrowWhen.ConditionFails(condition, exception);
+        Action act = () => ThrowIf.ConditionFails(condition, exception);
 
         // Assert
         act.Should().NotThrow();

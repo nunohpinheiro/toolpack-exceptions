@@ -1,7 +1,8 @@
-namespace ToolPack.Exceptions.Web.Extensions;
+namespace ToolPack.Exceptions.Web.DependencyInjection;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using ToolPack.Exceptions.Web.Handlers;
 using ToolPack.Exceptions.Web.Services.Implementations;
 using ToolPack.Exceptions.Web.Services.Interfaces;
@@ -13,9 +14,14 @@ public static class DependencyInjectionExtensions
     /// Adds the ToolPack Exceptions framework services that treat exceptions.
     /// This does not include gRPC interceptors nor ASP.NET middleware (for such, see the other extension methods).</summary>
     /// <param name="services">The services.</param>
+    /// <param name="options">Optional setup to map custom Exception types onto custom WebErrorStatus, adding new ones to the existing maps, or overwritting when the Exception type was already mapped.</param>
     /// <returns>The services updated with a registered Exceptions system.</returns>
-    public static IServiceCollection AddToolPackExceptions(this IServiceCollection services)
+    public static IServiceCollection AddToolPackExceptions(
+        this IServiceCollection services,
+        Action<ExceptionToWebErrorOptions> options = null)
     {
+        options?.Invoke(new());
+
         services.AddExceptionServices();
 
         return services;
@@ -25,10 +31,13 @@ public static class DependencyInjectionExtensions
     /// Adds all the ToolPack Exceptions framework required for gRPC services, to handle exceptions globally in gRPC calls.
     /// If handling exceptions in REST endpoints is required, proper middleware must be used (see extension "UseToolPackExceptionsMiddleware").</summary>
     /// <param name="services">The services.</param>
+    /// <param name="options">Optional setup to map custom Exception types onto custom WebErrorStatus, adding new ones to the existing maps, or overwritting when the Exception type was already mapped.</param>
     /// <returns>The services updated with a registered Exceptions system (including gRPC interceptor services).</returns>
-    public static IServiceCollection AddToolPackExceptionsGrpc(this IServiceCollection services)
+    public static IServiceCollection AddToolPackExceptionsGrpc(
+        this IServiceCollection services,
+        Action<ExceptionToWebErrorOptions> options = null)
     {
-        services.AddToolPackExceptions()
+        services.AddToolPackExceptions(options)
                 .AddToolPackExceptionsGrpcInterceptor();
 
         return services;

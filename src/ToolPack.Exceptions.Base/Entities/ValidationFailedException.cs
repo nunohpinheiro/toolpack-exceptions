@@ -25,7 +25,7 @@ public class ValidationFailedException : CustomBaseException
         : base(MessageDefault, innerException) { }
 
     /// <summary>Initializes a new instance of the ValidationFailedException class.</summary>
-    /// <param name="failures">The failures that occurred.</param>
+    /// <param name="failures">The failures that occurred. (ValidationFailure elements, from FluentValidation)</param>
     /// <param name="innerException">The exception that is the cause of the current exception, or a null reference if no inner exception is specified.</param>
     public ValidationFailedException(IEnumerable<ValidationFailure> failures, Exception innerException = null)
         : this(innerException)

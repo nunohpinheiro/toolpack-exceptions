@@ -10,7 +10,10 @@ using ToolPack.Exceptions.Base.Guard;
 
 public class GreeterService : Greeter.GreeterBase
 {
+    // TODO: Add endpoints to match the REST API
+
     private readonly ILogger<GreeterService> _logger;
+
     public GreeterService(ILogger<GreeterService> logger)
     {
         _logger = logger;
@@ -18,28 +21,28 @@ public class GreeterService : Greeter.GreeterBase
 
     public override Task<Response> GetAlreadyExists(Request request, ServerCallContext context)
     {
-        _logger.LogInformation($"gRPC unary request");
+        _logger.LogInformation("gRPC unary request");
 
         _logger.LogInformation("Throwing AlreadyExistsException");
 
-        ThrowWhen.ConditionFails(false, new AlreadyExistsException());
+        ThrowIf.ConditionFails(false, new AlreadyExistsException());
 
         return Task.FromResult(new Response());
     }
 
     public override Task GetAlreadyExistsStream(Request request, IServerStreamWriter<Response> responseStream, ServerCallContext context)
     {
-        _logger.LogInformation($"gRPC stream request");
+        _logger.LogInformation("gRPC stream request");
 
         _logger.LogInformation("Throwing AlreadyExistsException");
 
-        ThrowWhen.ConditionFails(false, new AlreadyExistsException());
+        ThrowIf.ConditionFails(false, new AlreadyExistsException());
         return Task.CompletedTask;
     }
 
     public override Task<Response> GetCustomBaseException(Request request, ServerCallContext context)
     {
-        _logger.LogInformation($"gRPC unary request");
+        _logger.LogInformation("gRPC unary request");
 
         _logger.LogInformation("Throwing CustomBaseException");
 
@@ -48,7 +51,7 @@ public class GreeterService : Greeter.GreeterBase
 
     public override Task GetCustomBaseExceptionStream(Request request, IServerStreamWriter<Response> responseStream, ServerCallContext context)
     {
-        _logger.LogInformation($"gRPC stream request");
+        _logger.LogInformation("gRPC stream request");
 
         _logger.LogInformation("Throwing CustomBaseException");
 
@@ -57,49 +60,49 @@ public class GreeterService : Greeter.GreeterBase
 
     public override Task<Response> GetNotFound(Request request, ServerCallContext context)
     {
-        _logger.LogInformation($"gRPC unary request");
+        _logger.LogInformation("gRPC unary request");
 
         _logger.LogInformation("Throwing NotFoundException");
 
-        ThrowWhen.ArgumentNullThrowNotFound<string>(null, "argument description", "argument key");
+        ThrowIf.ArgumentNullThrowNotFound<string>(null, "argument key");
 
         return Task.FromResult(new Response());
     }
 
     public override Task GetNotFoundStream(Request request, IServerStreamWriter<Response> responseStream, ServerCallContext context)
     {
-        _logger.LogInformation($"gRPC stream request");
+        _logger.LogInformation("gRPC stream request");
 
         _logger.LogInformation("Throwing NotFoundException");
 
-        ThrowWhen.ArgumentNullThrowNotFound<string>(null, "argument description", "argument key");
+        ThrowIf.ArgumentNullThrowNotFound<string>(null, "argument key");
         return Task.CompletedTask;
     }
 
     public override Task<Response> GetThirdPartyException(Request request, ServerCallContext context)
     {
-        _logger.LogInformation($"gRPC unary request");
+        _logger.LogInformation("gRPC unary request");
 
         _logger.LogInformation("Throwing ExternalComponentException");
 
-        ThrowWhen.ConditionFails(false, new ExternalComponentException());
+        ThrowIf.ConditionFails(false, new ExternalComponentException());
 
         return Task.FromResult(new Response());
     }
 
     public override Task GetThirdPartyExceptionStream(Request request, IServerStreamWriter<Response> responseStream, ServerCallContext context)
     {
-        _logger.LogInformation($"gRPC stream request");
+        _logger.LogInformation("gRPC stream request");
 
         _logger.LogInformation("Throwing ExternalComponentException");
 
-        ThrowWhen.ConditionFails(false, new ExternalComponentException());
+        ThrowIf.ConditionFails(false, new ExternalComponentException());
         return Task.CompletedTask;
     }
 
     public override Task<Response> GetValidationFailedException(Request request, ServerCallContext context)
     {
-        _logger.LogInformation($"gRPC unary request");
+        _logger.LogInformation("gRPC unary request");
 
         _logger.LogInformation("Throwing ValidationFailedException");
 
@@ -113,7 +116,7 @@ public class GreeterService : Greeter.GreeterBase
 
     public override Task GetValidationFailedExceptionStream(Request request, IServerStreamWriter<Response> responseStream, ServerCallContext context)
     {
-        _logger.LogInformation($"gRPC stream request");
+        _logger.LogInformation("gRPC stream request");
 
         _logger.LogInformation("Throwing ValidationFailedException");
 

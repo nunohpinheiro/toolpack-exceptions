@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using ToolPack.Exceptions.Web.Extensions;
+using ToolPack.Exceptions.Web.DependencyInjection;
 
 public class Startup
 {
