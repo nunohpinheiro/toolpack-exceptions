@@ -14,7 +14,7 @@
             Repo: https://github.com/nunohpinheiro/toolpack-exceptions
         </Description>
 
-        <PackageVersion>2.0.0</PackageVersion>
+        <PackageVersion>3.0.0</PackageVersion>
 
         <PackageId>ToolPack.Exceptions.Web</PackageId>
         <PackageProjectUrl>https://github.com/nunohpinheiro/toolpack-exceptions</PackageProjectUrl>
